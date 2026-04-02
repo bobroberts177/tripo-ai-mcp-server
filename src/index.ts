@@ -134,6 +134,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             face_limit: z.number().optional().describe('Limits the number of faces on the output model.'),
             texture_size: z.number().optional().describe('Set the diffuse color texture size (in pixel). The default value is 4096.'),
             pivot_to_center_bottom: z.boolean().optional().describe('Set the pivot point to center bottom. The default value is false'),
+            fbx_preset: z.enum(['blender', 'mixamo', '3dsmax']).optional().describe('Specify the target platform for fbx export compatibility. The default value is blender.')
           })
         )
       }
@@ -277,7 +278,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (name === 'convert_model') {
-      const { original_model_task_id, format, face_limit, texture_size, pivot_to_center_bottom } = args as any;
+      const { original_model_task_id, format, face_limit, texture_size, pivot_to_center_bottom, fbx_preset } = args as any;
       const payload: any = {
         type: 'convert_model',
         original_model_task_id,
@@ -286,6 +287,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       if (face_limit) payload.face_limit = face_limit;
       if (texture_size) payload.texture_size = texture_size;
       if (pivot_to_center_bottom !== undefined) payload.pivot_to_center_bottom = pivot_to_center_bottom;
+      if (fbx_preset) payload.fbx_preset = fbx_preset;
 
       const result = await api.createTask(payload);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
