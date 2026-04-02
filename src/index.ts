@@ -183,18 +183,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       const payload: any = {
         type: 'image_to_model',
-        file: {
-          type: 'jpg', // Tripo seems to infer or accept generic 'jpg/png' for the token structure usually, but let's check docs if strict. Research said "file_id parameter" for S3. But for direct upload it returned "image_token". 
-          file_id: token
-        }
+        file: { type: 'png', file_token: token }
       };
-
-      // Research Note: The research says "file parameter" for direct upload. 
-      // But for task creation using the uploaded file, we need to pass the reference.
-      // The research mentions: "file_id parameter instead of inline image data".
-      // Let's assume the task payload expects a 'file' object with 'file_id' or 'image_token'.
-      // Looking at common Tripo API usage:
-      // payload: { type: 'image_to_model', file: { type: 'png', file_id: 'token' } }
 
       if (model_version) payload.model_version = model_version;
       if (texture !== undefined) payload.texture = texture;
@@ -242,10 +232,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const uploadedFiles = [];
       for (const f of files) {
         if (f.token) {
-          uploadedFiles.push({ type: 'jpg', file_id: f.token }); // Defaulting type
+          uploadedFiles.push({ type: 'png', file_token: f.token }); // Defaulting type
         } else if (f.path) {
           const up = await api.uploadFile(f.path);
-          uploadedFiles.push({ type: 'jpg', file_id: up.data.image_token });
+          uploadedFiles.push({ type: 'png', file_token: up.data.image_token });
         }
       }
 
